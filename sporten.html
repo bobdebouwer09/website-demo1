@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sporten Beheren</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div style="text-align: left; max-width: 800px; margin: 0 auto; padding-bottom: 20px;">
+        <a href="index.html">⬅ Home</a>
+    </div>
+    
+    <h1>Alle Sporten</h1>
+    
+    <div id="sportenLijstDiv"></div>
+    
+    <button class="btn-action" onclick="addSport()" style="margin-top: 20px;">+ Sport Toevoegen</button>
+
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSportenLijst();
+        });
+    </script>
+</body>
+</html>

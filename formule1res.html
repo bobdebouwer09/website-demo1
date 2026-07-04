@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formule 1 - Volledige Grid</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .ranking-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .ranking-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #2e2a72;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #4338ca;
+        }
+        .grid-badge {
+            background: #38bdf8;
+            color: #0f172a;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            min-width: 65px;
+            text-align: center;
+        }
+        .p1-color { background: #fbbf24; }
+        .p2-color { background: #94a3b8; }
+        .p3-color { background: #b45309; color: white; }
+
+        select {
+            color: white !important;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        select option {
+            background-color: #1e1b4b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="text-align: left; max-width: 800px; margin: 0 auto; padding-bottom: 20px;">
+        <a href="formule1.html">⬅ Terug naar Formule 1</a>
+    </div>
+    
+    <h1>🏎️ Formule 1 Resultaten</h1>
+    
+    <div style="max-width: 600px; margin: 0 auto;">
+        
+        <h2 style="font-size: 20px; color: #94a3b8; margin-top: 20px;">📊 Actuele Einduitslag</h2>
+        <ul id="driversList" style="margin-bottom: 40px;">
+        </ul>
+
+        <div class="score-card" style="max-width: 100%; margin-bottom: 25px;">
+            <h3 style="font-size: 18px; margin-bottom: 5px;">🏁 Posities Aanduiden (P1 t/m P22)</h3>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Kies via de meerkeuzemenu's welke coureur op welke plek is geëindigd.</p>
+            
+            <div class="ranking-box" id="inputContainer">
+            </div>
+
+            <button class="btn-action" onclick="saveAndRender()" style="width: 100%; background: linear-gradient(135deg, #22c55e, #16a34a);">💾 Actuele Einduitslag Opslaan</button>
+        </div>
+
+    </div>
+
+    <script>
+        const f1Drivers = [
+            "Alexander Albon", "Fernando Alonso", "Kimi Antonelli", "Oliver Bearman", 
+            "Gabriel Bortoleto", "Valtteri Bottas", "Franco Colapinto", "Pierre Gasly", 
+            "Isack Hadjar", "Lewis Hamilton", "Nico Hülkenberg", "Liam Lawson", 
+            "Charles Leclerc", "Arvid Lindblad", "Lando Norris", "Esteban Ocon", 
+            "Sergio Pérez", "Oscar Piastri", "George Russell", "Carlos Sainz", 
+            "Lance Stroll", "Max Verstappen"
+        ];
+
+        // Genereer de meerkeuzemenu's en laad eventueel opgeslagen posities in
+        function renderInputs() {
+            const container = document.getElementById('inputContainer');
+            container.innerHTML = '';
+
+            // Haal de eerder opgeslagen uitslag op uit het geheugen (als die bestaat)
+            const savedResults = JSON.parse(localStorage.getItem('f1_einduitslag')) || [];
+
+            for (let i = 0; i < 22; i++) {
+                let badgeClass = "grid-badge";
+                if (i === 0) badgeClass += " p1-color";
+                if (i === 1) badgeClass += " p2-color";
+                if (i === 2) badgeClass += " p3-color";
+
+                const div = document.createElement('div');
+                div.className = 'ranking-input-group';
+                
+                // Bepaal welke coureur standaard geselecteerd moet staan
+                let defaultDriver = savedResults[i] || f1Drivers[i];
+
+                let selectHtml = `<select id="select-p${i}" style="margin: 0; flex: 1;"><option value="">-- Kies Coureur --</option>`;
+                f1Drivers.forEach(driver => {
+                    const selected = (defaultDriver === driver) ? "selected" : "";
+                    selectHtml += `<option value="${driver}" ${selected}>${driver}</option>`;
+                });
+                selectHtml += `</select>`;
+
+                div.innerHTML = `
+                    <span class="${badgeClass}">P${i + 1}</span>
+                    ${selectHtml}
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        // Sla de uitslag permanent op in de browser en update de lijst bovenaan
+        function saveAndRender() {
+            const ul = document.getElementById('driversList');
+            ul.innerHTML = '';
+            
+            let resultsToSave = [];
+
+            for (let i = 0; i < 22; i++) {
+                const selectEl = document.getElementById(`select-p${i}`);
+                const name = selectEl ? selectEl.value : "";
+                
+                // Voeg toe aan de array die we gaan opslaan
+                resultsToSave.push(name);
+
+                let badgeClass = "grid-badge";
+                if (i === 0) badgeClass += " p1-color";
+                if (i === 1) badgeClass += " p2-color";
+                if (i === 2) badgeClass += " p3-color";
+
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <span class="${badgeClass}" style="margin-right: 15px;">P${i + 1}</span>
+                        <span style="font-weight: 600; color: white;">${name || "Nog leeg"}</span>
+                    </div>
+                    <span style="color: #818cf8; font-size: 11px; font-weight: bold;">✓ GEFINISHT</span>
+                `;
+                ul.appendChild(li);
+            }
+
+            // Sla de array op in localStorage onder de sleutel 'f1_einduitslag'
+            localStorage.setItem('f1_einduitslag', JSON.stringify(resultsToSave));
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderInputs();
+            saveAndRender();
+        });
+    </script>
+</body>
+</html>

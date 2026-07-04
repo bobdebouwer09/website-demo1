@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Wedstrijd</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .match-setup-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 550px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            color: #333;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .setup-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .setup-group label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .setup-group select, .setup-group input {
+            padding: 8px 12px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: #fff;
+        }
+        .btn-finish {
+            margin-top: 25px;
+            padding: 15px 35px;
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(255, 87, 34, 0.3);
+            transition: transform 0.2s, background 0.2s;
+        }
+        .btn-finish:hover {
+            background: #e64a19;
+            transform: translateY(-2px);
+        }
+        .team-row {
+            margin: 10px 0; 
+            padding: 15px; 
+            background: white; 
+            border-radius: 8px; 
+            color: black; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            max-width: 600px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: opacity 0.3s;
+        }
+        .team-muted {
+            opacity: 0.5;
+            background: #e8e8e8;
+        }
+    </style>
+</head>
+<body style="background-color: #f4f4f4; padding: 25px; font-family: Arial, sans-serif;">
+
+    <a href="index.html" style="text-decoration: none; color: #ff5722; font-weight: bold; display: inline-block; margin-bottom: 20px;">⬅ Terug naar Home</a>
+    
+    <h2>Live Wedstrijd & Punten Tellen</h2>
+
+    <div class="match-setup-box">
+        <div class="setup-group">
+            <label for="sport">Kies Sport</label>
+            <select id="sport" onchange="updateLiveSport(this.value)">
+            </select>
+        </div>
+        
+        <div class="setup-group">
+            <label for="date">Datum</label>
+            <input type="date" id="date">
+        </div>
+    </div>
+
+    <div id="wedstrijdPuntenDiv"></div>
+
+    <button class="btn-finish" onclick="saveMatch()">
+        🏁 Wedstrijd Beëindigen & Opslaan
+    </button>
+
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            vulSportenKeuzemenu();
+            renderWedstrijdInvoer();
+        });
+    </script>
+</body>
+</html>

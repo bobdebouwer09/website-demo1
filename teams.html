@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams Beheren</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div style="text-align: left; max-width: 800px; margin: 0 auto; padding-bottom: 20px;">
+        <a href="index.html">⬅ Home</a>
+    </div>
+    
+    <h1>Alle Deelnemende Teams</h1>
+    
+    <div id="teamsLijstDiv"></div>
+    
+    <button class="btn-action" onclick="addTeam()" style="margin-top: 20px;">+ Nieuw Team Toevoegen</button>
+
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTeamsLijst();
+        });
+    </script>
+</body>
+</html>

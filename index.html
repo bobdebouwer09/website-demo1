@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>punten App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header style="display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto; padding: 10px 20px;">
+        <div style="font-weight: bold; color: #38bdf8; letter-spacing: 1px;">🏆 TOERNOOI</div>
+        <div class="hamburger-menu" id="navToggle" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <nav class="mobile-menu" id="mobileMenu">
+        <a href="teams.html">👥 Teams</a>
+        <a href="sporten.html">⚡ Sporten</a>
+        <a href="geschiedenis.html">📜 Geschiedenis</a>
+    </nav>
+
+    <main style="margin-top: 50px;">
+        <h1>Toernooi Manager</h1>
+        <p style="color: #94a3b8; margin-bottom: 40px;">Welkom! Gebruik het menu rechtsboven of de knoppen hieronder om te starten.</p>
+
+        <div style="display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 0 auto;">
+            <a href="wedstrijd.html" class="btn-action" style="text-decoration: none; text-align: center;">Start Wedstrijd</a>
+            <a href="formule1.html" class="btn-action" style="text-decoration: none; text-align: center; background: #2600ff;">Bekijk 🏎️ Formule 1 wedstrijd</a>
+            <a href="scorebord.html" class="btn-action" style="text-decoration: none; text-align: center; background: #039700;">Bekijk Klassement</a>
+        </div>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const toggle = document.getElementById('navToggle');
+            
+            // Schakel de klassen 'open' aan en uit
+            menu.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

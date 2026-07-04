@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klassement per Sport</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .sport-buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0 35px 0;
+            flex-wrap: wrap;
+        }
+        .btn-sport {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            background: #333;
+            color: white;
+            border: 2px solid #ff5722;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-sport:hover {
+            background: #444;
+            transform: translateY(-2px);
+        }
+        .btn-sport.active {
+            background: #ff5722;
+            color: white;
+        }
+        .scoreboard-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .score-card {
+            background: #222;
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 250px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            position: relative;
+            border: 2px solid transparent;
+        }
+        .score-card.winner-card {
+            border-color: #ffd700;
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.2);
+        }
+        .winner-badge {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+        }
+        .score-card h3 {
+            margin: 5px 0 10px 0;
+            font-size: 26px;
+            text-transform: uppercase;
+            color: #ff5722;
+        }
+        .score-display {
+            font-size: 80px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+            margin: 10px 0;
+        }
+        .sport-title {
+            font-size: 14px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body style="background-color: #111; color: white; padding: 20px; text-align: center;">
+
+    <a href="index.html" style="text-decoration: none; color: #ff5722; font-weight: bold; float: left;">⬅ Home</a>
+    <br><br>
+    
+    <h1 style="font-size: 36px; margin-top: 20px; margin-bottom: 30px;">🏆 KLASSEMENT 🏆</h1>
+    
+    <div id="sportButtonsDiv" class="sport-buttons-container"></div>
+    <div id="scoreboardDisplay" class="scoreboard-container"></div>
+
+    <script src="script.js"></script>
+    <script>
+        let bekekenSport = localStorage.getItem("huidigeSport") || "Sport 1";
+
+        function renderSportKnoppen() {
+            let btnDiv = document.getElementById("sportButtonsDiv");
+            if (!btnDiv) return;
+
+            let opgeslagenSporten = JSON.parse(localStorage.getItem("sporten") || "[]");
+            btnDiv.innerHTML = "";
+
+            opgeslagenSporten.forEach(sport => {
+                let isActive = sport === bekekenSport ? "active" : "";
+                btnDiv.innerHTML += `
+                    <button class="btn-sport ${isActive}" onclick="wisselBekekenSport('${sport}')">
+                        🏅 ${sport}
+                    </button>
+                `;
+            });
+        }
+
+        function wisselBekekenSport(sportNaam) {
+            bekekenSport = sportNaam;
+            renderSportKnoppen();
+            updateScorebordScherm();
+        }
+
+        function updateScorebordScherm() {
+            let div = document.getElementById("scoreboardDisplay");
+            if(!div) return;
+
+            let liveTeams = JSON.parse(localStorage.getItem("teams") || "[]");
+            let history = JSON.parse(localStorage.getItem("history") || "[]");
+            
+            div.innerHTML = "";
+
+            let meedoendeTeams = liveTeams.filter(t => t.actief !== false);
+            
+            let teamsMetScores = [];
+            let hoogsteScore = 0;
+
+            meedoendeTeams.forEach(t => {
+                let sportPuntenTotaal = 0;
+
+                history.forEach(match => {
+                    if (match.sport === bekekenSport) {
+                        let gevondenTeamInMatch = match.teams.find(matchTeam => matchTeam.name === t.name);
+                        if (gevondenTeamInMatch) {
+                            sportPuntenTotaal += gevondenTeamInMatch.score;
+                        }
+                    }
+                });
+
+                if (sportPuntenTotaal > 0) {
+                    teamsMetScores.push({
+                        name: t.name,
+                        score: sportPuntenTotaal
+                    });
+
+                    if (sportPuntenTotaal > hoogsteScore) {
+                        hoogsteScore = sportPuntenTotaal;
+                    }
+                }
+            });
+
+            if(teamsMetScores.length === 0) {
+                div.innerHTML = `<p style='color: #666;'>Er zijn nog geen teams met opgeslagen punten voor ${bekekenSport}.</p>`;
+                return;
+            }
+
+            teamsMetScores.sort((a, b) => b.score - a.score);
+
+            teamsMetScores.forEach(t => {
+                let isWinnaar = t.score === hoogsteScore;
+                
+                let winnaarBadge = isWinnaar ? `<span class="winner-badge">🏆 Winnaar</span>` : `<span class="winner-badge" style="visibility: hidden;">🏆 Winnaar</span>`;
+                let winnaarKlasse = isWinnaar ? "winner-card" : "";
+
+                div.innerHTML += `
+                <div class="score-card ${winnaarKlasse}">
+                    ${winnaarBadge}
+                    <div class="sport-title">🏅 ${bekekenSport}</div>
+                    <h3>${t.name}</h3>
+                    <div class="score-display">${t.score}</div>
+                </div>
+                `;
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSportKnoppen();
+            updateScorebordScherm();
+            setInterval(updateScorebordScherm, 1000); 
+        });
+    </script>
+</body>
+</html>

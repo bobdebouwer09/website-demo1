@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formule 1 - Top 5 Voorspelling</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .ranking-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .ranking-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #2e2a72;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #4338ca;
+        }
+        .grid-badge {
+            color: #0f172a;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            min-width: 65px;
+            text-align: center;
+        }
+        .p1-color { background: #fbbf24; }
+        .p2-color { background: #94a3b8; }
+        .p3-color { background: #b45309; color: white; }
+        .p4-color { background: #38bdf8; }
+        .p5-color { background: #06b6d4; }
+
+        select {
+            color: white !important;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        select option {
+            background-color: #1e1b4b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="text-align: left; max-width: 800px; margin: 0 auto; padding-bottom: 20px;">
+        <a href="index.html">⬅ Home</a>
+    </div>
+    
+    <h1>🏎️ Formule 1 Top 5</h1>
+
+    <div style="text-align: center; margin-bottom: 25px;">
+        <a href="formule1res.html" class="btn-action" style="text-decoration: none; display: inline-block; max-width: 250px;">📊 Bekijk F1 Resultaten</a>
+    </div>
+    
+    <div style="max-width: 600px; margin: 0 auto;">
+        
+        <div class="score-card" style="max-width: 100%; margin-bottom: 25px;">
+            <span class="sport-title">STAP 1</span>
+            <h3 style="font-size: 18px; margin-top: 5px; margin-bottom: 15px;">Welk team ben jij?</h3>
+            <select id="myTeamSelect" onchange="selectMyTeam()" style="width: 100%; max-width: 300px; margin: 0 auto; display: block;">
+                <option value="">-- Kies een van jouw teams --</option>
+            </select>
+            <p id="teamFeedback" style="margin-top: 15px; font-weight: bold; color: #38bdf8;"></p>
+        </div>
+
+        <div class="score-card" style="max-width: 100%; margin-bottom: 25px;">
+            <span class="sport-title">STAP 2</span>
+            <h3 style="font-size: 18px; margin-top: 5px; margin-bottom: 5px;">Aanduiden Top 5</h3>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Kies via de meerkeuzemenu's welke coureur op welke plek eindigt.</p>
+            
+            <div class="ranking-box">
+                <div class="ranking-input-group">
+                    <span class="grid-badge p1-color">P1</span>
+                    <select id="select-p1" style="margin: 0; flex: 1;"><option value="">-- Kies Winnaar --</option></select>
+                </div>
+                <div class="ranking-input-group">
+                    <span class="grid-badge p2-color">P2</span>
+                    <select id="select-p2" style="margin: 0; flex: 1;"><option value="">-- Kies Nummer 2 --</option></select>
+                </div>
+                <div class="ranking-input-group">
+                    <span class="grid-badge p3-color">P3</span>
+                    <select id="select-p3" style="margin: 0; flex: 1;"><option value="">-- Kies Nummer 3 --</option></select>
+                </div>
+                <div class="ranking-input-group">
+                    <span class="grid-badge p4-color">P4</span>
+                    <select id="select-p4" style="margin: 0; flex: 1;"><option value="">-- Kies Nummer 4 --</option></select>
+                </div>
+                <div class="ranking-input-group">
+                    <span class="grid-badge p5-color">P5</span>
+                    <select id="select-p5" style="margin: 0; flex: 1;"><option value="">-- Kies Nummer 5 --</option></select>
+                </div>
+            </div>
+
+            <button class="btn-action" onclick="saveAndRender()" style="width: 100%; background: linear-gradient(135deg, #22c55e, #16a34a);">💾 Sla Top 5 Opslaan</button>
+        </div>
+
+        <h2 style="font-size: 20px; color: #94a3b8; margin-top: 30px;">📊 Actuele Top 5</h2>
+        
+        <ul id="driversList">
+        </ul>
+    </div>
+
+    <script>
+        const f1Drivers = [
+            "Alexander Albon", "Fernando Alonso", "Kimi Antonelli", "Oliver Bearman", 
+            "Gabriel Bortoleto", "Valtteri Bottas", "Franco Colapinto", "Pierre Gasly", 
+            "Isack Hadjar", "Lewis Hamilton", "Nico Hülkenberg", "Liam Lawson", 
+            "Charles Leclerc", "Arvid Lindblad", "Lando Norris", "Esteban Ocon", 
+            "Sergio Pérez", "Oscar Piastri", "George Russell", "Carlos Sainz", 
+            "Lance Stroll", "Max Verstappen"
+        ];
+
+        let savedTeams = JSON.parse(localStorage.getItem('teams')) || [];
+        let gekozenTeam = localStorage.getItem('f1_gekozen_team') || "";
+        const badges = ["p1-color", "p2-color", "p3-color", "p4-color", "p5-color"];
+
+        function initializeDropdowns() {
+            const myTeamSelect = document.getElementById('myTeamSelect');
+            const p1Select = document.getElementById('select-p1');
+            const p2Select = document.getElementById('select-p2');
+            const p3Select = document.getElementById('select-p3');
+            const p4Select = document.getElementById('select-p4');
+            const p5Select = document.getElementById('select-p5');
+
+            // Vul je eigen app-teams in
+            savedTeams.forEach(team => {
+                const teamName = team.name || team;
+                myTeamSelect.add(new Option(`🏎️ ${teamName}`, teamName));
+            });
+
+            // Vul de coureurs in
+            f1Drivers.forEach(driver => {
+                p1Select.add(new Option(driver, driver));
+                p2Select.add(new Option(driver, driver));
+                p3Select.add(new Option(driver, driver));
+                p4Select.add(new Option(driver, driver));
+                p5Select.add(new Option(driver, driver));
+            });
+
+            // Herstel het laatst gekozen team
+            if (gekozenTeam) {
+                myTeamSelect.value = gekozenTeam;
+                document.getElementById('teamFeedback').innerHTML = `Je hebt gekozen voor: <strong>${gekozenTeam}</strong>! Geef nu de uitslag hierdoor.`;
+            }
+
+            // Laad de specifieke antwoorden in voor het actieve team
+            loadTeamPrediction();
+        }
+
+        function loadTeamPrediction() {
+            const p1Select = document.getElementById('select-p1');
+            const p2Select = document.getElementById('select-p2');
+            const p3Select = document.getElementById('select-p3');
+            const p4Select = document.getElementById('select-p4');
+            const p5Select = document.getElementById('select-p5');
+
+            if (gekozenTeam) {
+                // Haal de specifieke top 5 op die bij DIT team hoort
+                const allPredictions = JSON.parse(localStorage.getItem('f1_team_predictions')) || {};
+                const savedTop5 = allPredictions[gekozenTeam] || ["", "", "", "", ""];
+
+                p1Select.value = savedTop5[0];
+                p2Select.value = savedTop5[1];
+                p3Select.value = savedTop5[2];
+                p4Select.value = savedTop5[3];
+                p5Select.value = savedTop5[4];
+            } else {
+                // Als er geen team is geselecteerd, zet alles leeg
+                p1Select.value = "";
+                p2Select.value = "";
+                p3Select.value = "";
+                p4Select.value = "";
+                p5Select.value = "";
+            }
+            // Update de weergave onderaan direct
+            saveAndRender(false); // false zorgt ervoor dat we alleen renderen, niet overschrijven
+        }
+
+        function selectMyTeam() {
+            const select = document.getElementById('myTeamSelect');
+            gekozenTeam = select.value;
+            const feedback = document.getElementById('teamFeedback');
+            
+            if (gekozenTeam) {
+                feedback.innerHTML = `Je hebt gekozen voor: <strong>${gekozenTeam}</strong>! Geef nu de uitslag hierdoor.`;
+                localStorage.setItem('f1_gekozen_team', gekozenTeam);
+            } else {
+                feedback.innerHTML = "";
+                localStorage.removeItem('f1_gekozen_team');
+            }
+            
+            // Laad de antwoorden die bij het nieuw gekozen team horen
+            loadTeamPrediction();
+        }
+
+        function saveAndRender(shouldSave = true) {
+            const ul = document.getElementById('driversList');
+            ul.innerHTML = '';
+
+            const top5Values = [
+                document.getElementById('select-p1').value || "",
+                document.getElementById('select-p2').value || "",
+                document.getElementById('select-p3').value || "",
+                document.getElementById('select-p4').value || "",
+                document.getElementById('select-p5').value || ""
+            ];
+
+            // Alleen opslaan als de gebruiker daadwerkelijk op de knop drukt én er een team is gekozen
+            if (shouldSave && gekozenTeam) {
+                let allPredictions = JSON.parse(localStorage.getItem('f1_team_predictions')) || {};
+                allPredictions[gekozenTeam] = top5Values; // Koppel de top 5 aan de teamnaam
+                localStorage.setItem('f1_team_predictions', JSON.stringify(allPredictions));
+            }
+
+            top5Values.forEach((name, index) => {
+                const displayName = name || "Nog leeg";
+                const isMyTeamText = (gekozenTeam && displayName.toLowerCase() === gekozenTeam.toLowerCase()) ? " (JOUW TEAM)" : "";
+
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <span class="grid-badge ${badges[index]}" style="margin-right: 15px;">P${index + 1}</span>
+                        <span style="font-weight: 600; ${isMyTeamText ? 'color: #38bdf8;' : 'color: white;'}">${displayName}${isMyTeamText}</span>
+                    </div>
+                    <span style="color: #fbbf24; font-size: 11px; font-weight: bold; letter-spacing: 0.5px;">⭐ TOP 5</span>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeDropdowns();
+        });
+    </script>
+</body>
+</html>
